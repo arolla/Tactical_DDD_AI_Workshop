@@ -3,33 +3,28 @@ using TheaterReservation.Data;
 
 namespace TheaterReservation;
 
-
-// ach, a good old singleton
-public class ReservationService
+public sealed class ReservationService
 {
+    private long currentId;
+    private readonly ReservationDao reservations;
 
-    private static Int64 currentId = 123_455;
-    public static String initNewReservation()
+    public ReservationService(long initialId = 123_455, ReservationDao? reservations = null)
     {
-        currentId++;
-        return currentId.ToString();
+        currentId = initialId;
+        this.reservations = reservations ?? new ReservationDao();
     }
 
-    public static void updateReservation(Reservation reservation)
-    {
-        new ReservationDao().update(reservation);
-    }
+    public string initNewReservation() => Interlocked.Increment(ref currentId).ToString();
 
-    public static Reservation findReservation(Int64 reservationId)
-    {
-        return new ReservationDao().find(reservationId);
-    }
+    public void updateReservation(Reservation reservation) => reservations.update(reservation);
 
-    public static void cancelReservation(Int64 reservationId)
+    public Reservation findReservation(long reservationId) => reservations.find(reservationId);
+
+    public void cancelReservation(long reservationId)
     {
-        Reservation reservation = new ReservationDao().find(reservationId);
+        var reservation = reservations.find(reservationId);
         reservation.setStatus("CANCELLED");
-        reservation.setSeats(new String[0]);
-        new ReservationDao().update(reservation);
+        reservation.setSeats(Array.Empty<string>());
+        reservations.update(reservation);
     }
 }

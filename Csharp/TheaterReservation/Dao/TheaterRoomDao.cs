@@ -17,7 +17,12 @@ public class TheaterRoomDao
 
     public TheaterRoom fetchTheaterRoom(Int64 performanceId)
     {
-        return theaterRoomMaps[performanceId];
+        if (!theaterRoomMaps.TryGetValue(performanceId, out var room))
+        {
+            throw new KeyNotFoundException($"Theater room for performance {performanceId} was not found.");
+        }
+
+        return room;
     }
 
     public void save(Int64 id, TheaterRoom room)
